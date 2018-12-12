@@ -16,6 +16,9 @@ open class MulticastDelegate<T> {
     /// The delegates hash table.
     private let delegates: NSHashTable<AnyObject>
     
+    /// The hook to be called for every new added delegate
+    private var delegateAddedHook: ((T)->())?
+    
     /**
      *  Use the property to check if no delegates are contained there.
      *
@@ -54,14 +57,29 @@ open class MulticastDelegate<T> {
     /**
      *  Use this method to add a delelgate.
      *
+     *  Note: this will also call the delegate added hook, if one has been set.
+     *
      *  Alternatively, you can use the `+=` operator to add a delegate.
      *
      *  - parameter delegate:  The delegate to be added.
      */
 	public func addDelegate(_ delegate: T) {
 		
+        // add the delegate
 		delegates.add(delegate as AnyObject)
+        
+        // call the hook (if specified)
+        delegateAddedHook?(delegate)
 	}
+    
+    /**
+     *  Use this method to set the hook called for whenever a new delegate is added.
+     *
+     *  - parameter hook:  The hook function to be called.
+     */
+    public func delegateAdded(hook: ((T)->())?) {
+        delegateAddedHook = hook
+    }
     
     /**
      *  Use this method to remove a previously-added delegate.
